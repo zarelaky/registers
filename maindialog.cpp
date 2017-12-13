@@ -5,38 +5,39 @@
 #include <QDebug>
 #include <QLineEdit>
 #include <QPushButton>
+#include <math.h>
 
 MainDialog::MainDialog(QWidget *parent) :
     QDialog(parent)
 {
     setFixedSize(640,400);
-    _ledtHex = new QLineEdit();
-    _ledtDec = new QLineEdit();
+    _ledtHex = new QLineEdit(this);
+    _ledtDec = new QLineEdit(this);
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    QGridLayout* gridlayout = new QGridLayout();
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    QGridLayout* gridlayout = new QGridLayout(this);
     int maxBitCount = 32;
     for (int i = 0; i < maxBitCount; ++i) {
         QLabel* t = new QLabel(QString("%1").arg(maxBitCount - 1 - i));
 
         t->setAlignment(Qt::AlignCenter);
         gridlayout->addWidget(t, 0, i);
-        QLabel* l = new QLabel();
+        QLabel* l = new QLabel(this);
 
         l->setAlignment(Qt::AlignCenter);
         setLabelValue(l, 0);
         _l[l]= new BIN_V(0, maxBitCount - 1 - i);
         connect(l, SIGNAL(linkActivated(QString)), SLOT(linkActivated(QString)));
-        gridlayout->setColumnMinimumWidth(i, 42);
+        gridlayout->setColumnMinimumWidth(i, 44);
         gridlayout->addWidget(l, 1, i);
 
     }
 
-    QPushButton* btnReset0 = new QPushButton("0");
+    QPushButton* btnReset0 = new QPushButton("0", this);
     connect(btnReset0, SIGNAL(clicked(bool)), SLOT(onReset0(bool)));
     gridlayout->addWidget(btnReset0, 1, 33);
 
-    QPushButton* btnReset1 = new QPushButton("1");
+    QPushButton* btnReset1 = new QPushButton("1",this);
     connect(btnReset1, SIGNAL(clicked(bool)), SLOT(onReset1(bool)));
     gridlayout->addWidget(btnReset1, 1, 34);
 
@@ -53,6 +54,13 @@ MainDialog::MainDialog(QWidget *parent) :
     gridlayout->addWidget(_ledtDec, 3, 0, 1, 32);
     gridlayout->addWidget(new QLabel("DEC"), 3,33,1,2);
 
+    _ledtBinary = new QLineEdit(this);
+    _ledtBinary->setAlignment(Qt::AlignRight);
+    connect(_ledtBinary, SIGNAL(textChanged(QString)), SLOT(edtBinaryChanged(QString)));
+    gridlayout->addWidget(_ledtBinary, 4, 0, 1, 32);
+    gridlayout->addWidget(new QLabel("BIN"), 4,33,1,2);
+
+
     layout->addSpacerItem(new QSpacerItem(0, 300,
                                           QSizePolicy::Maximum,
                                           QSizePolicy::Maximum));
@@ -67,7 +75,11 @@ MainDialog::MainDialog(QWidget *parent) :
 
 MainDialog::~MainDialog()
 {
-
+    QMapIterator<QLabel*, BIN_V*> itr(_l);
+    while (itr.hasNext()) {
+        BIN_V* p = itr.next().value();
+        delete p;
+    }
 }
 
 void MainDialog::calcBinaryValue() {
@@ -136,6 +148,7 @@ void MainDialog::updateLEDT()
 {
     updateDec();
     updateHex();
+    updateBinary();
 }
 
 void MainDialog::onReset1(bool)
@@ -155,16 +168,37 @@ void MainDialog::updateAllBits()
     }
 }
 
+void MainDialog::updateBinary() {
+    QMapIterator<QLabel*, BIN_V*> itr(_l);
+    QString str = "00000000000000000000000000000000";
+    while (itr.hasNext()) {
+        itr.next();
+        BIN_V* p = itr.value();
+        str.replace(31-p->pow, 1, (_dec & (1 << p->pow))? "1":"0");
+    }
+    _ledtBinary->setText(str);
+}
+
+
 void MainDialog::edtDecChanged(QString txt)
 {
     _dec = txt.toUInt();
     updateHex();
     updateAllBits();
+    updateBinary();
 }
 
 void MainDialog::edtHexChanged(QString txt)
 {
     _dec = txt.toUInt(NULL, 16);
+    updateDec();
+    updateAllBits();
+    updateBinary();
+}
+
+void MainDialog::edtBinaryChanged(QString txt) {
+    _dec = txt.toUInt(NULL, 2);
+    updateHex();
     updateDec();
     updateAllBits();
 }

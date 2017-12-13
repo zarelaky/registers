@@ -28,6 +28,7 @@ protected slots:
     void onReset1(bool);
     void edtDecChanged(QString);
     void edtHexChanged(QString);
+    void edtBinaryChanged(QString txt);
 private:
     void setLabelValue(QLabel* l, int v);
     void calcBinaryValue();
@@ -36,12 +37,13 @@ private:
     void updateAllBits();
     void updateDec();
     void updateHex();
+    void updateBinary();
 private:
     QMap<QLabel*, BIN_V*> _l;
     quint32 _dec;
     QLineEdit* _ledtDec;
     QLineEdit* _ledtHex;
-
+    QLineEdit* _ledtBinary;
 };
 
 
