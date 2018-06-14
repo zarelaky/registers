@@ -25,9 +25,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        maindialog.cpp
+        maindialog.cpp \
+    bitswidget.cpp
 
 HEADERS += \
-        maindialog.h
+        maindialog.h \
+    bitswidget.h
 
 FORMS +=

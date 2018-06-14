@@ -5,45 +5,41 @@
 #include <QLineEdit>
 #include <QMap>
 
+class BitsWidget;
+
 class MainDialog : public QDialog
 {
     Q_OBJECT
-    struct BIN_V{
-        BIN_V(int v, int p)
-            : val(v)
-            , pow(p){}
-        int val;
-        const int pow;
-    };
 
 public:
     explicit MainDialog(QWidget *parent = 0);
     ~MainDialog();
 
-
-
 protected slots:
-    void linkActivated(QString);
     void onReset0(bool);
     void onReset1(bool);
     void edtDecChanged(QString);
     void edtHexChanged(QString);
     void edtBinaryChanged(QString txt);
+    void bitsValueChanged();
+    void selectedValueChanged();
+
 private:
     void setLabelValue(QLabel* l, int v);
     void calcBinaryValue();
     void resetAllBit(int v);
     void updateLEDT();
-    void updateAllBits();
     void updateDec();
     void updateHex();
     void updateBinary();
+    void updateAllBits();
 private:
-    QMap<QLabel*, BIN_V*> _l;
     quint32 _dec;
+    BitsWidget* _bitsWidget;
     QLineEdit* _ledtDec;
     QLineEdit* _ledtHex;
     QLineEdit* _ledtBinary;
+    QLineEdit* _ledtMarkedDec;
 };
 
 
